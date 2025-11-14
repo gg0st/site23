@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Кафе быстрых свиданий</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#fbfbfc;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --accent:#e05475;
+    --glass: rgba(255,255,255,0.6);
+    --radius:14px;
+    --shadow: 0 10px 30px rgba(15,23,42,0.08);
+    --transition: 300ms cubic-bezier(.2,.9,.3,1);
+  }
+  [data-theme="dark"]{
+    --bg:#0b0f14;
+    --card:#071019;
+    --text:#e6eef6;
+    --muted:#94a3b8;
+    --glass: rgba(255,255,255,0.03);
+    --shadow: 0 10px 30px rgba(2,6,23,0.7);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;font-size:16px;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+
+  /* HEADER */
+  .site-header{
+    position:fixed;left:0;right:0;top:0;z-index:60;
+    backdrop-filter: blur(6px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.35));
+    border-bottom:1px solid rgba(0,0,0,0.04);
+    transition: box-shadow var(--transition), background var(--transition);
+  }
+  [data-theme="dark"] .site-header{
+    background: linear-gradient(180deg, rgba(6,9,12,0.6), rgba(6,9,12,0.35));
+    border-bottom-color: rgba(255,255,255,0.03);
+  }
+  .site-header .wrap{
+    max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:12px 20px;
+  }
+  .logo{font-weight:700;color:var(--accent);font-size:18px}
+  .nav{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .nav a{padding:8px 12px;border-radius:10px;transition:var(--transition);font-weight:600;color:var(--muted)}
+  .nav a:hover{background:var(--glass);color:var(--text)}
+
+  /* burger */
+  .burger{
+    width:44px;height:44px;border-radius:10px;display:none;align-items:center;justify-content:center;background:transparent;border:none;
+  }
+  .burger .lines{width:22px;height:2px;background:var(--text);position:relative;transition:var(--transition)}
+  .burger .lines::before,.burger .lines::after{content:"";position:absolute;left:0;right:0;height:2px;background:var(--text);transition:var(--transition)}
+  .burger .lines::before{top:-7px}
+  .burger .lines::after{bottom:-7px}
+
+  /* header mobile nav */
+  .mobile-nav{
+    position:fixed;top:68px;left:12px;right:12px;background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow);display:none;z-index:55;
+  }
+  [data-theme="dark"] .mobile-nav{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+
+  /* HERO with parallax bg */
+  .hero{
+    min-height:65vh;display:grid;align-items:center;padding:120px 20px 60px;position:relative;overflow:hidden;
+    background: url('https://images.unsplash.com/photo-1521305916504-4a1121188589?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=1f8d5b8f7a6c5e5b7c7f9a2d1f3d6a9e') center/cover fixed no-repeat;
+  }
+  .hero .overlay{
+    position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.06));mix-blend-mode:multiply;pointer-events:none;
+  }
+  .hero .wrap{position:relative;z-index:3;color:white;max-width:1180px;margin:0 auto;display:flex;gap:40px;align-items:center}
+  .hero .hero-text{max-width:560px}
+  .hero h1{font-size:clamp(28px,5vw,44px);margin:0 0 12px;line-height:1.05;font-weight:800;text-shadow:0 6px 30px rgba(0,0,0,0.45)}
+  .hero p{margin:0 0 20px;color:rgba(255,255,255,0.9);font-weight:500}
+
+  /* content containers */
+  section{padding:80px 20px}
+  .container{max-width:1180px;margin:0 auto}
+  .two-cols{display:grid;grid-template-columns:1fr 480px;gap:36px;align-items:center}
+  .card{background:var(--card);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+  .img-rounded{width:100%;border-radius:12px;object-fit:cover;display:block;box-shadow:0 12px 30px rgba(2,6,23,0.08)}
+
+  /* gallery grid */
+  .gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+
+  /* testimonials */
+  .testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .testimonial{padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));}
+
+  /* contact */
+  .contact-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+  form label{display:block;margin:6px 0 6px;font-weight:600;color:var(--muted)}
+  input[type="text"],input[type="email"],textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.08);background:transparent;color:var(--text);transition:var(--transition)}
+  textarea{min-height:140px;resize:vertical}
+  .btn{background:var(--accent);border:none;color:white;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+
+  /* footer */
+  footer{padding:40px 20px;background:transparent;border-top:1px solid rgba(0,0,0,0.04);color:var(--muted)}
+
+  /* small screens */
+  @media (max-width:980px){
+    .two-cols{grid-template-columns:1fr}
+    .contact-grid{grid-template-columns:1fr}
+    .hero{background-attachment:scroll} /* disable fixed on mobile for perf */
+    .burger{display:flex}
+    .nav{display:none}
+    .mobile-nav{display:block}
+    .site-header{position:fixed}
+  }
+
+  /* animations */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity 600ms ease, transform 600ms ease}
+  .reveal.show{opacity:1;transform:none}
+
+  /* utility */
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.06);font-weight:700;color:var(--accent)}
+</style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="wrap" style="display:flex;align-items:center">
+      <div class="logo">Кафе быстрых свиданий</div>
+
+      <nav class="nav" aria-label="Главная навигация">
+        <a href="#about">О нас</a>
+        <a href="#gallery">Галерея</a>
+        <a href="#reviews">Обзоры</a>
+        <a href="#contact">Контакты</a>
+        <button id="themeToggle" aria-label="Переключить тему" title="Тёмная/светлая тема" style="background:transparent;border:none;cursor:pointer;font-weight:700">🌓</button>
+      </nav>
+
+      <button class="burger" id="burgerBtn" aria-label="Открыть меню">
+        <span class="lines" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <!-- mobile nav (shown when burger clicked) -->
+    <div id="mobileNav" class="mobile-nav" style="display:none;flex-direction:column;gap:10px">
+      <a href="#about">О нас</a>
+      <a href="#gallery">Галерея</a>
+      <a href="#reviews">Обзоры</a>
+      <a href="#contact">Контакты</a>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="themeToggleMobile" class="btn" style="flex:1">Тема</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO / Parallax -->
+  <section class="hero" id="home" aria-label="Главный экран">
+    <div class="overlay" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="hero-text">
+        <span class="badge">Новые встречи</span>
+        <h1>Ускорьте знакомство — за чашкой кофе</h1>
+        <p>Короткие форматные свидания в уютной атмосфере. Приходите — познакомьтесь, пообщайтесь, найдите своё совпадение.</p>
+        <div style="display:flex;gap:12px;margin-top:14px">
+          <a class="btn" href="#contact">Забронировать</a>
+          <a class="btn" href="#gallery" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.18)">Галерея</a>
+        </div>
+      </div>
+      <div style="margin-left:auto;max-width:440px">
+        <img src="https://aminakabylkan04-ucvfw.wordpress.com/wp-content/uploads/2025/11/d0bad0b0d184d0b5-d0b1d18bd181d182d180d18bd185-d181d0b2d0b8d0b4d0b0d0bdd0b8d0b9-8.jpeg" alt="Кафе" style="width:100%;border-radius:18px;box-shadow:var(--shadow);">
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" aria-label="О нас">
+    <div class="container two-cols">
+      <div>
+        <h2>О кафе</h2>
+        <p class="muted">Добро пожаловать в наше уютное место — формат быстрых свиданий при хорошем кофе и приятной музыке. Мы делаем процесс знакомства лёгким и безопасным.</p>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px">
+          <div class="card reveal"><strong>Уют</strong><div class="muted">Комфортные столики</div></div>
+          <div class="card reveal"><strong>Формат</strong><div class="muted">5-7 минутные свидания</div></div>
+        </div>
+      </div>
+
+      <aside class="card">
+        <img class="img-rounded" src="https://images.unsplash.com/photo-1523301343968-9b5a8b7c5f2b?q=80&w=800&auto=format&fit=crop" alt="Интерьер кафе">
+      </aside>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery" aria-label="Галерея">
+    <div class="container">
+      <h2>Галерея</h2>
+      <div class="gallery-grid" style="margin-top:12px">
+        <img class="img-rounded reveal" src="https://aminakabylkan04-ucvfw.wordpress.com/wp-content/uploads/2025/11/d0bad0b0d184d0b5-d0b1d18bd181d182d180d18bd185-d181d0b2d0b8d0b4d0b0d0bdd0b8d0b9-7.jpeg" alt="gallery1">
+        <img class="img-rounded reveal" src="https://aminakabylkan04-ucvfw.wordpress.com/wp-content/uploads/2025/11/d0bad0b0d184d0b5-d0b1d18bd181d182d180d18bd185-d181d0b2d0b8d0b4d0b0d0bdd0b8d0b9-6.jpeg" alt="gallery2">
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="reviews" aria-label="Обзоры">
+    <div class="container">
+      <h2>Обзоры</h2>
+      <div class="testimonials" style="margin-top:12px">
+        <div class="testimonial reveal">
+          <h3>Исключительно!</h3>
+          <p>Атмосфера уютная и романтичная — отличное место для знакомства.</p>
+          <div class="muted">— Отзыв сгенерирован ИИ</div>
+        </div>
+        <div class="testimonial reveal">
+          <h3>Настоятельно рекомендую!</h3>
+          <p>Здесь я нашёл свою вторую половинку!</p>
+          <div class="muted">— Отзыв сгенерирован ИИ</div>
+        </div>
+        <div class="testimonial reveal">
+          <h3>Пять звёзд!</h3>
+          <p>Тёплая атмосфера и лёгкие знакомства.</p>
+          <div class="muted">— Отзыв сгенерирован ИИ</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT + MAP -->
+  <section id="contact" aria-label="Контакты">
+    <div class="container">
+      <h2>Свяжитесь с нами</h2>
+      <div class="contact-grid" style="margin-top:16px">
+        <div>
+          <p class="muted">Быстро находите локацию, задавайте вопросы или бронируйте свидание.</p>
+
+          <!-- FORM -->
+          <form id="contactForm" class="card" autocomplete="off" novalidate>
+            <label for="name">Имя</label>
+            <input id="name" name="name" type="text" placeholder="Ваше имя" required>
+
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="email@example.com" required>
+
+            <label for="message">Сообщение</label>
+            <textarea id="message" name="message" placeholder="Кратко о запросе" required></textarea>
+
+            <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+              <button type="submit" class="btn">Отправить в Telegram</button>
+              <div id="formStatus" class="muted" style="font-size:14px"></div>
+            </div>
+          </form>
+        </div>
+
+        <!-- MAP -->
+        <div class="card" id="mapCard" style="min-height:360px;padding:0;overflow:hidden;border-radius:12px">
+          <div id="map" style="width:100%;height:100%;min-height:360px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="center">
+    <div class="container">
+      <small class="muted">© <span id="year"></span> Кафе быстрых свиданий — Все права защищены</small>
+    </div>
+  </footer>
+
+<script>
+/* ----------------------
+   Конфигурация (замените ПЛЕЙСХОЛДЕРЫ)
+   ----------------------
+   - GOOGLE_MAPS_API_KEY: вставьте API-ключ Google Maps
+   - TELEGRAM_BOT_TOKEN: токен бота Telegram (формат: 123456:ABC-DEF...)
+   - TELEGRAM_CHAT_ID: ID чата или пользователя куда отправлять сообщения
+*/
+const CONFIG = {
+  GOOGLE_MAPS_API_KEY: 'YOUR_GOOGLE_MAPS_API_KEY',   // <-- Замените
+  TELEGRAM_BOT_TOKEN: 'YOUR_TELEGRAM_BOT_TOKEN',     // <-- Замените (рекомендуется НЕ хранить в клиенте)
+  TELEGRAM_CHAT_ID: 'YOUR_TELEGRAM_CHAT_ID',         // <-- Замените
+  USE_SERVER_PROXY: false, // true = отправлять на ваш сервер (рекомендуется)
+  SERVER_PROXY_URL: '/send-telegram' // если используете прокси: POST { name, email, message }
+};
+
+/* ----------------------
+   Тема (dark/light) + сохранение
+   ---------------------- */
+(function themeInit(){
+  const themeKey = 'site-theme';
+  const userPref = localStorage.getItem(themeKey) || (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', userPref);
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function toggleTheme(){
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(themeKey, next);
+  }
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+})();
+
+/* ----------------------
+   Burger menu
+   ---------------------- */
+(function navInit(){
+  const burger = document.getElementById('burgerBtn');
+  const mobile = document.getElementById('mobileNav');
+  let open = false;
+  burger.addEventListener('click', () => {
+    open = !open;
+    mobile.style.display = open ? 'flex' : 'none';
+    burger.querySelector('.lines').style.transform = open ? 'rotate(45deg)' : 'none';
+    if(open){
+      burger.querySelector('.lines').style.background = 'transparent';
+      burger.querySelector('.lines').style.boxShadow = 'none';
+    } else {
+      burger.querySelector('.lines').style.background = '';
+    }
+  });
+  // close on link click (mobile)
+  mobile.addEventListener('click', (e)=>{ if(e.target.tagName==='A'){ mobile.style.display='none'; open=false }});
+})();
+
+/* ----------------------
+   Reveal on scroll (simple)
+   ---------------------- */
+(function revealOnScroll(){
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(ent => {
+      if(ent.isIntersecting){ ent.target.classList.add('show'); obs.unobserve(ent.target) }
+    });
+  }, {threshold:0.12});
+  els.forEach(el=>obs.observe(el));
+})();
+
+/* ----------------------
+   Parallax subtle effect (mouse)
+   ---------------------- */
+(function parallax(){
+  const hero = document.querySelector('.hero');
+  if(!hero) return;
+  hero.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 10;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+    hero.style.transform = `translate3d(${x}px, ${y/2}px, 0)`;
+  });
+  hero.addEventListener('mouseleave', ()=> hero.style.transform = '');
+})();
+
+/* ----------------------
+   Google Maps loader + init
+   ---------------------- */
+function loadGoogleMaps(apiKey){
+  return new Promise((res, rej) => {
+    if(window.google && window.google.maps) return res(window.google.maps);
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = rej;
+    document.head.appendChild(script);
+    window.initMap = function(){
+      res(window.google.maps);
+    };
+  });
+}
+
+async function initMap(){
+  try{
+    if(!CONFIG.GOOGLE_MAPS_API_KEY || CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
+      document.getElementById('map').innerHTML = '<div style="padding:20px;color:var(--muted)">Карта не настроена — вставьте Google Maps API key в конфиг.</div>';
+      return;
+    }
+    const maps = await loadGoogleMaps(CONFIG.GOOGLE_MAPS_API_KEY);
+    const center = { lat: 51.1694, lng: 71.4491 }; // пример — Алматы (можете заменить)
+    const map = new maps.Map(document.getElementById('map'), {
+      center,
+      zoom: 14,
+      styles: [] // оставлено пустым — можно вставить свой map style
+    });
+    const marker = new maps.Marker({ position:center, map, title:'Кафе быстрых свиданий' });
+
+    // Info window
+    const info = new maps.InfoWindow({content:'<strong>Кафе быстрых свиданий</strong><br>Здесь вы нас найдёте.'});
+    marker.addListener('click', ()=>info.open(map,marker));
+  }catch(err){
+    console.error('Map error',err);
+    document.getElementById('map').innerHTML = '<div style="padding:20px;color:var(--muted)">Ошибка загрузки карты.</div>';
+  }
+}
+
+/* ----------------------
+   FORM -> Telegram
+   ---------------------- */
+(function formHandler(){
+  const form = document.getElementById('contactForm');
+  const status = document.getElementById('formStatus');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.textContent = 'Отправка...';
+
+    const data = {
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      message: form.message.value.trim()
+    };
+    if(!data.name || !data.email || !data.message){ status.textContent = 'Заполните все поля'; return; }
+
+    try {
+      if(CONFIG.USE_SERVER_PROXY){
+        // рекомендованная секьюрная опция: отправляем на ваш server proxy
+        const res = await fetch(CONFIG.SERVER_PROXY_URL, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if(res.ok){ status.textContent = 'Сообщение отправлено!'; form.reset(); }
+        else { status.textContent = json?.error || 'Ошибка отправки (сервер)'; }
+      } else {
+        // КЛИЕНТСКИЙ ВАРИАНТ (НЕБЕЗОПАСНО при публичном использовании)
+        if(!CONFIG.TELEGRAM_BOT_TOKEN || !CONFIG.TELEGRAM_CHAT_ID || CONFIG.TELEGRAM_BOT_TOKEN==='YOUR_TELEGRAM_BOT_TOKEN'){
+          status.textContent = 'Телеграм токен/чат не настроены на клиенте.';
+          return;
+        }
+        const text = `Новое сообщение%0AИмя: ${encodeURIComponent(data.name)}%0AEmail: ${encodeURIComponent(data.email)}%0ASообщение: ${encodeURIComponent(data.message)}`;
+        const url = `https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${CONFIG.TELEGRAM_CHAT_ID}&parse_mode=HTML&text=${text}`;
+
+        const res = await fetch(url, { method:'GET' }); // Telegram API позволяет GET
+        const j = await res.json();
+        if(j.ok){ status.textContent = 'Сообщение отправлено!'; form.reset(); }
+        else { status.textContent = 'Ошибка отправки: ' + (j.description || 'неизвестная ошибка'); }
+      }
+    } catch (err){
+      console.error(err);
+      status.textContent = 'Ошибка сети. Попробуйте позже.';
+    } finally {
+      setTimeout(()=>status.textContent='', 4500);
+    }
+  });
+})();
+
+/* ----------------------
+   AUTO-INIT: карта, если ключ указан
+   ---------------------- */
+if(CONFIG.GOOGLE_MAPS_API_KEY && CONFIG.GOOGLE_MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY'){
+  // асинхронно загрузим карту
+  initMap();
+} else {
+  // показываем placeholder
+  document.getElementById('map').innerHTML = '<div style="padding:20px;color:var(--muted)">Карта не настроена. Вставьте API-ключ Google Maps в конфиг по коду.</div>';
+}
+</script>
+</body>
+</html>
